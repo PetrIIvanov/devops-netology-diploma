@@ -4,10 +4,10 @@ locals {
 		prod = "prod"
 	}
 	instances = {
-	"nginx" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"_nginx"),2,2,true]
-	"mysql_m" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"_mysql_m"),4,4,false]
-        "mysql_s" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"_mysql_s"),4,4,false]
-        "wp" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"_mysql_s"),4,4,false]
+	"nginx" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-nginx"),2,2,true]
+	"mysql-m" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-m"),4,4,false]
+        "mysql-s" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-s"),4,4,false]
+        "wp" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-wp"),4,4,false]
 	}
 	
 }
