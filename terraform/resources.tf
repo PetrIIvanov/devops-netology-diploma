@@ -5,7 +5,7 @@ locals {
 	}
 	instances = {
 	"nginx" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-nginx"),2,2,true, "petrivanov.ru","ansible"]
-        "test" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-test"),2,2,true, "test.petrivanov.ru","n/a"]
+        "test" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-test"),2,2,false, "test.petrivanov.ru","n/a"]
 //	"mysql-m" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-m"),4,4,false,"db01.petrivanov.ru","n/a"]
 //        "mysql-s" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-s"),4,4,false,"db02.petrivanov.ru","n/a"]
 //        "wp" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-wp"),4,4,false,"app.petrivanov.ru","n/a"]
@@ -100,6 +100,7 @@ provisioner "file" {
 
     inline = [
       "sudo apt update -y",
+      "sudo chmod 400 /home/vagrant/.ssh/id_rsa",
       (each.value[5] != "ansible" ? "": "sudo apt install ansible -y"),
       "sudo apt install git -y"
 
