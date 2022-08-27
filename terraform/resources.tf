@@ -4,10 +4,11 @@ locals {
 		prod = "prod"
 	}
 	instances = {
-	"nginx" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-nginx"),2,2,true]
-	"mysql-m" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-m"),4,4,false]
-        "mysql-s" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-s"),4,4,false]
-        "wp" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-wp"),4,4,false]
+	"nginx" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-nginx"),2,2,true, "petrivanov.ru","ansible"]
+        "test" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-test"),2,2,true, "test.petrivanov.ru","n/a"]
+//	"mysql-m" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-m"),4,4,false,"db01.petrivanov.ru","n/a"]
+//        "mysql-s" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-s"),4,4,false,"db02.petrivanov.ru","n/a"]
+//        "wp" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-wp"),4,4,false,"app.petrivanov.ru","n/a"]
 	}
 	
 }
@@ -17,6 +18,7 @@ resource "yandex_compute_instance" "vm-work" {
 
   for_each = local.instances
   name = each.value[0]
+  hostname = each.value[4]
 
   resources {
     cores  = each.value[1]
@@ -36,13 +38,75 @@ resource "yandex_compute_instance" "vm-work" {
   }
 
   metadata = {
-    ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
+    // ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
+    user-data = "${file("./userdata/meta.txt")}"
   }
 
+/*
+  provisioner "remote-exec" {
 
+    connection {
+      host        = "${self.network_interface.0.nat_ip_address}"
+      user        = "vagrant"
+      type        = "ssh"
+      private_key = "${file("~/.ssh/id_rsa")}"
+      timeout     = "2m"
+    }
+    inline = [
+      "sudo apt update -y",
+      (each.value[5] != "ansible" ? "": "sudo apt install ansible -y"),
+      "sudo apt install git -y"
+
+    ]
+  }
+*/
 }
 
+resource "null_resource" "nginx_ansible" {
+  for_each = {
+    for k, v in local.instances : k => v
+    if k == "nginx"
+  }
 
+    connection {
+      host        = yandex_compute_instance.vm-work[each.key].network_interface.0.nat_ip_address
+      user        = "vagrant"
+      type        = "ssh"
+      private_key = "${file("~/.ssh/id_rsa")}"
+      timeout     = "2m"
+    }
+/*
+  provisioner "remote-exec" {
+    inline = [
+       "mkdir ~/.ssh"
+    ]
+  }
+*/
+
+provisioner "file" {
+  source      = "~/.ssh/id_rsa"
+  destination = "/home/vagrant/.ssh/id_rsa"
+}
+
+  provisioner "remote-exec" {
+/*
+    connection {
+      host        = yandex_compute_instance.vm-work[each.key].network_interface.0.nat_ip_address
+      user        = "vagrant"
+      type        = "ssh"
+      private_key = "${file("~/.ssh/id_rsa")}"
+      timeout     = "2m"
+    }*/
+
+    inline = [
+      "sudo apt update -y",
+      (each.value[5] != "ansible" ? "": "sudo apt install ansible -y"),
+      "sudo apt install git -y"
+
+    ]
+  }
+  
+}
 
 resource "yandex_vpc_network" "network-1" {
   name = "network1"
