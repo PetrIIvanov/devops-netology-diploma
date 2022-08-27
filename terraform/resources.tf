@@ -4,10 +4,10 @@ locals {
 		prod = "prod"
 	}
 	instances = {
-	"nginx" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"_nginx"),2,2]
-	"mysql_m" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"_mysql_m"),4,4]
-        "mysql_s" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"_mysql_s"),4,4]
-        "wp" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"_mysql_s"),4,4]
+	"nginx" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"_nginx"),2,2,true]
+	"mysql_m" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"_mysql_m"),4,4,false]
+        "mysql_s" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"_mysql_s"),4,4,false]
+        "wp" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"_mysql_s"),4,4,false]
 	}
 	
 }
@@ -25,13 +25,14 @@ resource "yandex_compute_instance" "vm-work" {
 
   boot_disk {
     initialize_params {
-      image_id = "fd87va5cc00gaq2f5qfb"
+      image_id =  "fd8kdq6d0p8sij7h5qe3" // Ubuntu 20.04
+      //"fd87va5cc00gaq2f5qfb"
     }
   }
 
   network_interface {
     subnet_id = yandex_vpc_subnet.subnet-1.id
-    nat       = true
+    nat       = each.value[3]
   }
 
   metadata = {
