@@ -75,38 +75,40 @@ resource "null_resource" "nginx_ansible" {
       private_key = "${file("~/.ssh/id_rsa")}"
       timeout     = "2m"
     }
-/*
-  provisioner "remote-exec" {
-    inline = [
-       "mkdir ~/.ssh"
-    ]
+provisioner "remote-exec" {
+   inline = [
+       "mkdir -p /home/vagrant/provision"
+   ]
   }
-*/
+provisioner "file" {
+  source      = "${path.root}/../ansible/"
+  destination = "/home/vagrant/provision"
+}
+
+provisioner "file" {
+  source      = "${path.root}/../hosts"
+  destination = "/home/vagrant/hosts"
+}
 
 provisioner "file" {
   source      = "~/.ssh/id_rsa"
   destination = "/home/vagrant/.ssh/id_rsa"
 }
 
-  provisioner "remote-exec" {
-/*
-    connection {
-      host        = yandex_compute_instance.vm-work[each.key].network_interface.0.nat_ip_address
-      user        = "vagrant"
-      type        = "ssh"
-      private_key = "${file("~/.ssh/id_rsa")}"
-      timeout     = "2m"
-    }*/
-
-    inline = [
+provisioner "remote-exec" {
+  inline = [
       "sudo apt update -y",
       "sudo chmod 400 /home/vagrant/.ssh/id_rsa",
       (each.value[5] != "ansible" ? "": "sudo apt install ansible -y"),
-      "sudo apt install git -y"
+      "sudo apt install git -y",
+      "sudo bash -c 'cat  /home/vagrant/hosts/hosts >> /etc/hosts'",
+      "sudo bash -c 'cat  /home/vagrant/hosts/hosts >> /etc/cloud/templates/hosts.debian.tmpl'"
 
     ]
   }
-  
+
+depends_on = [local_file.ansible_inventory, local_file.hosts
+]
 }
 
 resource "yandex_vpc_network" "network-1" {
@@ -118,6 +120,31 @@ resource "yandex_vpc_subnet" "subnet-1" {
   zone           = "ru-central1-a"
   network_id     = yandex_vpc_network.network-1.id
   v4_cidr_blocks = ["192.168.10.0/24"]
+}
+
+
+resource "local_file" "ansible_inventory" {
+
+  content = templatefile("${path.root}/templates/inventory.tpl", {
+    nodes = [
+      for k,v in local.instances:
+      [k, yandex_compute_instance.vm-work[k].network_interface.0.ip_address]
+    ]
+  })
+  filename  = "${path.root}/../ansible/inventory"
+  file_permission = 644 
+}
+
+resource "local_file" "hosts" {
+
+  content = templatefile("${path.root}/templates/hosts.tpl", {
+    nodes = [
+      for k,v in local.instances:
+      [v[4], yandex_compute_instance.vm-work[k].network_interface.0.ip_address]
+    ]
+  })
+  filename  = "${path.root}/../hosts/hosts"
+  file_permission = 644
 }
 
  output "internal_ip_address_vm_work" {
