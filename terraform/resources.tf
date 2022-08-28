@@ -55,7 +55,8 @@ resource "yandex_compute_instance" "vm-work" {
     inline = [
       "sudo apt update -y",
       (each.value[5] != "ansible" ? "": "sudo apt install ansible -y"),
-      "sudo apt install git -y"
+      "sudo apt install git -y",
+      "git clone https://github.com/PetrIIvanov/ansible-nginx-revproxy.git /home/vagrant/provision"
 
     ]
   }

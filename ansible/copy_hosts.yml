@@ -1,0 +1,13 @@
+- name: Copy hosts file
+  hosts: all,!nginx
+  tasks:
+  - name: Create directories
+    shell: mkdir -p /home/vagrant/hosts
+  - name: Copy files 
+    copy:
+      src: /home/vagrant/hosts/hosts
+      dest: /home/vagrant/hosts/hosts
+  - name: Exec shell hosts
+    shell: cat /home/vagrant/hosts/hosts >> /etc/hosts
+  - name: Exec shell hosts template    
+    shell: cat /home/vagrant/hosts/hosts >> /etc/cloud/templates/hosts.debian.tmpl
