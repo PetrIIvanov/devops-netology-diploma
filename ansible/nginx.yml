@@ -13,7 +13,7 @@
             - prometheus.petrivanov.ru
             - alertmanager.petrivanov.ru
           upstreams:
-            - { backend_address: 192.168.10.3, backend_port: 80 }
+            - { backend_address: 192.168.10.15, backend_port: 80 }
             - { backend_address: 192.168.10.3, backend_port: 80 }
             - { backend_address: 192.168.10.3, backend_port: 80 }
             - { backend_address: 192.168.10.3, backend_port: 80 }

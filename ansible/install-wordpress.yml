@@ -1,0 +1,14 @@
+- hosts: wp
+  become: true
+  vars:
+    wp_version: 5.7.1
+    wp_webserver: nginx
+    wp_mysql_db: 'wordpress'
+    wp_mysql_user: 'wordpress'
+    wp_mysql_password: 'wordpressZ9217!'
+    wp_admin_email: 'admin@example.com'
+    wp_sitename: petrivanov.ru
+    wp_install_dir: "/var/www/petrivanov.ru"
+    wp_db_host: db01.petrivanov.ru
+  roles:
+    - ansible-wordpress

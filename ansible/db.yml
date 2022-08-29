@@ -1,0 +1,20 @@
+  - hosts: mysql-m
+    roles:
+     - { role: ansible-role-mysql,
+               mysql_db: [{ name: wordpress, replicate: yes },
+               { name: example_db2, replicate: no }],
+               mysql_users: [{ name: wordpress, pass: wordpressZ9217!, priv: "*.*:ALL,GRANT", host: "%" },
+                             { name: user2, pass: very7Z7strongtoo }],
+               mysql_db_id: 8,
+               mysql_repl_user: [{ name: repl, pass: very7Z7strong, host: "%" }]
+        }
+
+  - hosts: mysql-s
+    roles:
+     - { role: ansible-role-mysql,
+               mysql_db: none,
+               mysql_users: none,
+               mysql_repl_role: slave,
+               mysql_repl_master: db01.petrivanov.ru,
+               mysql_db_id: 9,
+               mysql_repl_user: [{ name: repl, pass: very7Z7strong, host: "%" }] }

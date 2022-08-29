@@ -5,11 +5,12 @@ locals {
 	}
 	instances = {
 	"nginx" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-nginx"),2,2,true, "petrivanov.ru","ansible"]
-        "test" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-test"),2,2,false, "test.petrivanov.ru","n/a"]
-//	"mysql-m" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-m"),4,4,false,"db01.petrivanov.ru","n/a"]
-//        "mysql-s" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-s"),4,4,false,"db02.petrivanov.ru","n/a"]
-//        "wp" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-wp"),4,4,false,"app.petrivanov.ru","n/a"]
-	}
+        "test" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-test"),2,2,true, "test.petrivanov.ru","n/a"]
+	"mysql-m" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-m"),4,4,true,"db01.petrivanov.ru","n/a"]
+        "mysql-s" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-s"),4,4,true,"db02.petrivanov.ru","n/a"]
+        "wp" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-wp"),4,4,true,"app.petrivanov.ru","n/a"]
+	
+        }
 	
 }
 
@@ -32,7 +33,7 @@ resource "yandex_compute_instance" "vm-work" {
     }
   }
 
-  network_interface {
+  network_interface  {
     subnet_id = yandex_vpc_subnet.subnet-1.id
     nat       = each.value[3]
   }
@@ -121,6 +122,13 @@ resource "yandex_vpc_subnet" "subnet-1" {
   zone           = "ru-central1-a"
   network_id     = yandex_vpc_network.network-1.id
   v4_cidr_blocks = ["192.168.10.0/24"]
+}
+
+resource "yandex_vpc_subnet" "subnet-2" {
+  name           = "subnet2"
+  zone           = "ru-central1-a"
+  network_id     = yandex_vpc_network.network-1.id
+  v4_cidr_blocks = ["192.168.20.0/24"]
 }
 
 
