@@ -1,0 +1,6 @@
+  - hosts: gitlab
+    roles:
+      - ansible-role-gitlab
+        #- ansible-letsencrypt-nginx-revproxy
+    vars:
+      gitlab_external_url: "https://51.250.2.133/"

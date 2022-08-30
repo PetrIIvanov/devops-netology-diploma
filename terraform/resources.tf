@@ -8,10 +8,10 @@ locals {
         "test" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-test"),2,2,true, "test.petrivanov.ru","n/a","192.168.10.10"]
 	"mysql-m" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-m"),4,4,true,"db01.petrivanov.ru","n/a","192.168.10.20"]
         "mysql-s" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-s"),4,4,true,"db02.petrivanov.ru","n/a","192.168.10.21"]
-//        "wp" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-wp"),4,4,true,"app.petrivanov.ru","n/a","192.168.10.30"]
-//        "gitlab" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-gitlab"),4,4,true,"gitlab.petrivanov.ru","n/a","192.168.10.40"]
-//        "runner" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-runner"),4,4,true,"runner.petrivanov.ru","n/a","192.168.10.41"]
-//        "monitoring" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-monitoring"),4,4,true,"monitoring.petrivanov.ru","n/a","192.168.10.50"]
+        "wp" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-wp"),4,4,true,"app.petrivanov.ru","n/a","192.168.10.30"]
+        "gitlab" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-gitlab"),4,4,true,"gitlab.petrivanov.ru","n/a","192.168.10.40"]
+        "runner" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-runner"),4,4,true,"runner.petrivanov.ru","n/a","192.168.10.41"]
+        "monitoring" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-monitoring"),4,4,true,"monitoring.petrivanov.ru","n/a","192.168.10.50"]
         }
 	
 }
@@ -32,6 +32,7 @@ resource "yandex_compute_instance" "vm-work" {
     initialize_params {
       image_id =  "fd8kdq6d0p8sij7h5qe3" // Ubuntu 20.04
       //"fd87va5cc00gaq2f5qfb"
+      size = (each.value[5] != "gitlab" ? 5 : 15 )
     }
   }
 
@@ -112,7 +113,10 @@ provisioner "remote-exec" {
       "sudo bash -c 'cat  /home/vagrant/hosts/hosts >> /etc/cloud/templates/hosts.debian.tmpl'",
       "git clone https://github.com/PetrIIvanov/ansible-nginx-revproxy.git /home/vagrant/provision/ansible-nginx-revproxy/",
       "git clone https://github.com/PetrIIvanov/ansible-role-mysql.git /home/vagrant/provision/ansible-role-mysql/",
-      "git clone https://github.com/PetrIIvanov/ansible-wordpress.git /home/vagrant/provision/ansible-wordpress/"
+      "git clone https://github.com/PetrIIvanov/ansible-wordpress.git /home/vagrant/provision/ansible-wordpress/",
+      "git clone https://github.com/PetrIIvanov/ansible-role-monitoring /home/vagrant/provision/ansible-role-monitoring/",
+      "git clone https://github.com/PetrIIvanov/ansible-alertmanager.git /home/vagrant/provision/ansible-alertmanager/",
+      "ansible-galaxy collection install community.mysql"
 
     ]
   }

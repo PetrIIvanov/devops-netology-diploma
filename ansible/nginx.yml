@@ -13,12 +13,13 @@
             - prometheus.petrivanov.ru
             - alertmanager.petrivanov.ru
           upstreams:
-            - { backend_address: 192.168.10.15, backend_port: 80 }
-            - { backend_address: 192.168.10.3, backend_port: 80 }
-            - { backend_address: 192.168.10.3, backend_port: 80 }
-            - { backend_address: 192.168.10.3, backend_port: 80 }
-            - { backend_address: 192.168.10.3, backend_port: 80 }
-            - { backend_address: 192.168.10.3, backend_port: 80 }
+            - { backend_address: 192.168.10.30, backend_port: 80 }
+            - { backend_address: 192.168.10.10, backend_port: 80 }
+            - { backend_address: 192.168.10.40, backend_port: 80 }
+            - { backend_address: 192.168.10.50, backend_port: 80 }
+            - { backend_address: 192.168.10.50, backend_port: 80 }
+            - { backend_address: 192.168.10.50, backend_port: 80 }
           letsencrypt: true
+          ssl: true
           letsencrypt_email: black.skif@gmail.com
-          letsencrypt_stage: true
+          letsencrypt_stage: false
