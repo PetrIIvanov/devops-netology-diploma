@@ -116,6 +116,7 @@ provisioner "remote-exec" {
       "git clone https://github.com/PetrIIvanov/ansible-wordpress.git /home/vagrant/provision/ansible-wordpress/",
       "git clone https://github.com/PetrIIvanov/ansible-role-monitoring /home/vagrant/provision/ansible-role-monitoring/",
       "git clone https://github.com/PetrIIvanov/ansible-alertmanager.git /home/vagrant/provision/ansible-alertmanager/",
+      "git clone https://github.com/PetrIIvanov/ansible-role-gitlab.git",
       "ansible-galaxy collection install community.mysql"
 
     ]

@@ -1,0 +1,51 @@
+  - hosts: nginx
+    roles:
+      - ansible-nginx-revproxy
+        #- ansible-letsencrypt-nginx-revproxy
+    vars:
+      nginx_revproxy_sites:
+        www.petrivanov.ru:
+          domains:
+            - www.petrivanov.ru
+          upstreams:
+            - { backend_address: 192.168.10.30, backend_port: 80 }
+          letsencrypt: true
+          ssl: false
+          letsencrypt_email: black.skif@gmail.com
+          letsencrypt_stage: false
+        grafana.petrivanov.ru:
+          domains:
+            - grafana.petrivanov.ru
+          upstreams:
+            - { backend_address: 192.168.10.50, backend_port: 3000 }
+          letsencrypt: true
+          ssl: false
+          letsencrypt_email: black.skif@gmail.com
+          letsencrypt_stage: false
+        gitlab.petrivanov.ru:
+          domains:
+            - gitlab.petrivanov.ru
+          upstreams:
+            - { backend_address: 192.168.10.40, backend_port: 443 }
+          letsencrypt: true
+          ssl: false
+          letsencrypt_email: black.skif@gmail.com
+          letsencrypt_stage: false
+        prometheus.petrivanov.ru:
+          domains:
+            - prometheus.petrivanov.ru
+          upstreams:
+                  - { backend_address: 192.168.10.50, backend_port: 9090 }
+          letsencrypt: true
+          ssl: false
+          letsencrypt_email: black.skif@gmail.com
+          letsencrypt_stage: false
+        alertmanager.petrivanov.ru:
+          domains:
+            - alertmanager.petrivanov.ru
+          upstreams:
+                  - { backend_address: 192.168.10.50, backend_port: 9093 }
+          letsencrypt: true
+          ssl: false
+          letsencrypt_email: black.skif@gmail.com
+          letsencrypt_stage: false
