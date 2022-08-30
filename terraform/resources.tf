@@ -4,12 +4,14 @@ locals {
 		prod = "prod"
 	}
 	instances = {
-	"nginx" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-nginx"),2,2,true, "petrivanov.ru","ansible"]
-        "test" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-test"),2,2,true, "test.petrivanov.ru","n/a"]
-	"mysql-m" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-m"),4,4,true,"db01.petrivanov.ru","n/a"]
-        "mysql-s" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-s"),4,4,true,"db02.petrivanov.ru","n/a"]
-        "wp" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-wp"),4,4,true,"app.petrivanov.ru","n/a"]
-	
+	"nginx" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-nginx"),2,2,true, "petrivanov.ru","ansible","192.168.10.5"]
+        "test" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-test"),2,2,true, "test.petrivanov.ru","n/a","192.168.10.10"]
+	"mysql-m" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-m"),4,4,true,"db01.petrivanov.ru","n/a","192.168.10.20"]
+        "mysql-s" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-s"),4,4,true,"db02.petrivanov.ru","n/a","192.168.10.21"]
+//        "wp" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-wp"),4,4,true,"app.petrivanov.ru","n/a","192.168.10.30"]
+//        "gitlab" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-gitlab"),4,4,true,"gitlab.petrivanov.ru","n/a","192.168.10.40"]
+//        "runner" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-runner"),4,4,true,"runner.petrivanov.ru","n/a","192.168.10.41"]
+//        "monitoring" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-monitoring"),4,4,true,"monitoring.petrivanov.ru","n/a","192.168.10.50"]
         }
 	
 }
@@ -35,6 +37,7 @@ resource "yandex_compute_instance" "vm-work" {
 
   network_interface  {
     subnet_id = yandex_vpc_subnet.subnet-1.id
+    ip_address = each.value[6]
     nat       = each.value[3]
   }
 
@@ -79,7 +82,8 @@ resource "null_resource" "nginx_ansible" {
     }
 provisioner "remote-exec" {
    inline = [
-       "mkdir -p /home/vagrant/provision"
+       "mkdir -p /home/vagrant/provision",
+       "mkdir -p /home/vagrant/hosts"
    ]
   }
 provisioner "file" {
@@ -88,8 +92,8 @@ provisioner "file" {
 }
 
 provisioner "file" {
-  source      = "${path.root}/../hosts"
-  destination = "/home/vagrant/hosts"
+  source      = "${path.root}/../hosts/hosts"
+  destination = "/home/vagrant/hosts/hosts"
 }
 
 provisioner "file" {
@@ -100,11 +104,15 @@ provisioner "file" {
 provisioner "remote-exec" {
   inline = [
       "sudo apt update -y",
+      "sudo apt install net-tools,uzip -y",
       "sudo chmod 400 /home/vagrant/.ssh/id_rsa",
       (each.value[5] != "ansible" ? "": "sudo apt install ansible -y"),
       "sudo apt install git -y",
       "sudo bash -c 'cat  /home/vagrant/hosts/hosts >> /etc/hosts'",
-      "sudo bash -c 'cat  /home/vagrant/hosts/hosts >> /etc/cloud/templates/hosts.debian.tmpl'"
+      "sudo bash -c 'cat  /home/vagrant/hosts/hosts >> /etc/cloud/templates/hosts.debian.tmpl'",
+      "git clone https://github.com/PetrIIvanov/ansible-nginx-revproxy.git /home/vagrant/provision/ansible-nginx-revproxy/",
+      "git clone https://github.com/PetrIIvanov/ansible-role-mysql.git /home/vagrant/provision/ansible-role-mysql/",
+      "git clone https://github.com/PetrIIvanov/ansible-wordpress.git /home/vagrant/provision/ansible-wordpress/"
 
     ]
   }
@@ -124,13 +132,14 @@ resource "yandex_vpc_subnet" "subnet-1" {
   v4_cidr_blocks = ["192.168.10.0/24"]
 }
 
+/*
 resource "yandex_vpc_subnet" "subnet-2" {
   name           = "subnet2"
   zone           = "ru-central1-a"
   network_id     = yandex_vpc_network.network-1.id
   v4_cidr_blocks = ["192.168.20.0/24"]
 }
-
+*/
 
 resource "local_file" "ansible_inventory" {
 
