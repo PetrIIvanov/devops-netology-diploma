@@ -4,14 +4,14 @@ locals {
 		prod = "prod"
 	}
 	instances = {
-	"nginx" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-nginx"),2,2,true, "petrivanov.ru","ansible","192.168.10.5"]
-        "test" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-test"),2,2,true, "test.petrivanov.ru","n/a","192.168.10.10"]
-	"mysql-m" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-m"),4,4,true,"db01.petrivanov.ru","n/a","192.168.10.20"]
-        "mysql-s" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-s"),4,4,true,"db02.petrivanov.ru","n/a","192.168.10.21"]
-        "wp" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-wp"),4,4,true,"app.petrivanov.ru","n/a","192.168.10.30"]
-        "gitlab" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-gitlab"),4,4,true,"gitlab.petrivanov.ru","n/a","192.168.10.40"]
-        "runner" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-runner"),4,4,true,"runner.petrivanov.ru","n/a","192.168.10.41"]
-        "monitoring" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-monitoring"),4,4,true,"monitoring.petrivanov.ru","n/a","192.168.10.50"]
+	"nginx" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-nginx"),2,2,true, "nginx.petrivanov.ru","ansible","192.168.10.5"]
+        "test" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-test"),2,2,false, "test.petrivanov.ru","n/a","192.168.10.10"]
+//	"mysql-m" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-m"),4,4,true,"db01.petrivanov.ru","n/a","192.168.10.20"]
+//        "mysql-s" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-s"),4,4,true,"db02.petrivanov.ru","n/a","192.168.10.21"]
+//        "wp" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-wp"),4,4,true,"app.petrivanov.ru","n/a","192.168.10.30"]
+//        "gitlab" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-gitlab"),4,4,true,"gitlab.petrivanov.ru","n/a","192.168.10.40"]
+//        "runner" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-runner"),4,4,true,"runner.petrivanov.ru","n/a","192.168.10.41"]
+//        "monitoring" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-monitoring"),4,4,true,"monitoring.petrivanov.ru","n/a","192.168.10.50"]
         }
 	
 }
@@ -41,6 +41,11 @@ resource "yandex_compute_instance" "vm-work" {
     ip_address = each.value[6]
     nat       = each.value[3]
   }
+
+#  security_group_ids = [
+#    yandex_vpc_security_group.sg-internet.id,         # Allow any outgoing traffic to the Internet.
+#    yandex_vpc_security_group.sg-data-proc-cluster.id # Allow connections from VM and inside the security group.
+#  ]
 
   metadata = {
     // ssh-keys = "ubuntu:${file("~/.ssh/id_rsa.pub")}"
@@ -135,6 +140,7 @@ resource "yandex_vpc_subnet" "subnet-1" {
   zone           = "ru-central1-a"
   network_id     = yandex_vpc_network.network-1.id
   v4_cidr_blocks = ["192.168.10.0/24"]
+  route_table_id = yandex_vpc_route_table.route-table-nat.id
 }
 
 /*
