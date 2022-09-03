@@ -1,4 +1,4 @@
-- name: Copy hosts file
+- name: Copy keys
   hosts: all,!nginx
   tasks:
   - name: Create directories
@@ -7,6 +7,8 @@
     copy:
       src: /home/vagrant/.ssh/id_rsa
       dest: /home/vagrant/.ssh/id_rsa
+- name: Copy hosts
+  hosts: all,!nginx,!runner 
   - name: Copy files 
     copy:
       src: /home/vagrant/hosts/hosts

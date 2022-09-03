@@ -123,12 +123,13 @@ provisioner "remote-exec" {
       "git clone https://github.com/PetrIIvanov/ansible-role-monitoring /home/vagrant/provision/ansible-role-monitoring/",
       "git clone https://github.com/PetrIIvanov/ansible-alertmanager.git /home/vagrant/provision/ansible-alertmanager/",
       "git clone https://github.com/PetrIIvanov/ansible-role-gitlab.git /home/vagrant/provision/ansible-role-gitlab/",
+      "git clone https://github.com/PetrIIvanov/ansible-gitlab-runner.git /home/vagrant/provision/ansible-gitlab-runner/",
       "ansible-galaxy collection install community.mysql",
       "ansible-playbook -i /home/vagrant/provision/inventory /home/vagrant/provision/copy_hosts.yml --become",
       "ansible-playbook -i /home/vagrant/provision/inventory /home/vagrant/provision/db.yml --become",
       "ansible-playbook -i /home/vagrant/provision/inventory /home/vagrant/provision/install-wordpress.yml --become"
       // "ansible-playbook -i /home/vagrant/provision/inventory /home/vagrant/provision/nginx_v2.yml --become",
-      //"ansible-playbook -i /home/vagrant/provision/inventory /home/vagrant/provision/monitoring.yml --become"
+      //"ansible-playbook -i /home/vagrant/provision/inventory /home/vagrant/provision/ansible-role-monitoring/monitoring.yml --become"
 
     ]
   }
