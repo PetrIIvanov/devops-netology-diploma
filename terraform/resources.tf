@@ -5,13 +5,13 @@ locals {
 	}
 	instances = {
 	"nginx" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-nginx"),2,2,true, "nginx.petrivanov.ru","ansible","192.168.10.5"]
-        "test" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-test"),2,2,false, "test.petrivanov.ru","n/a","192.168.10.10"]
-//	"mysql-m" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-m"),4,4,true,"db01.petrivanov.ru","n/a","192.168.10.20"]
-//        "mysql-s" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-s"),4,4,true,"db02.petrivanov.ru","n/a","192.168.10.21"]
-//        "wp" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-wp"),4,4,true,"app.petrivanov.ru","n/a","192.168.10.30"]
-//        "gitlab" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-gitlab"),4,4,true,"gitlab.petrivanov.ru","n/a","192.168.10.40"]
-//        "runner" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-runner"),4,4,true,"runner.petrivanov.ru","n/a","192.168.10.41"]
-//        "monitoring" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-monitoring"),4,4,true,"monitoring.petrivanov.ru","n/a","192.168.10.50"]
+        //"test" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-test"),2,2,false, "test.petrivanov.ru","n/a","192.168.10.10"]
+	"mysql-m" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-m"),4,4,false,"db01.petrivanov.ru","n/a","192.168.10.20"]
+        "mysql-s" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-mysql-s"),4,4,false,"db02.petrivanov.ru","n/a","192.168.10.21"]
+        "wp" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-wp"),4,4,false,"app.petrivanov.ru","n/a","192.168.10.30"]
+        "gitlab" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-gitlab"),4,4,false,"gitlab.petrivanov.ru","n/a","192.168.10.40"]
+        "runner" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-runner"),4,4,false,"runner.petrivanov.ru","n/a","192.168.10.41"]
+        "monitoring" : [format("%s%s",local.web_instance_name_map[terraform.workspace],"-monitoring"),4,4,false,"monitoring.petrivanov.ru","n/a","192.168.10.50"]
         }
 	
 }
@@ -30,9 +30,10 @@ resource "yandex_compute_instance" "vm-work" {
 
   boot_disk {
     initialize_params {
+      name = each.value[0]
       image_id =  "fd8kdq6d0p8sij7h5qe3" // Ubuntu 20.04
       //"fd87va5cc00gaq2f5qfb"
-      size = (each.value[5] != "gitlab" ? 5 : 15 )
+      size = (each.value[5] != "gitlab" ? "5" : "15" )
     }
   }
 
@@ -122,7 +123,12 @@ provisioner "remote-exec" {
       "git clone https://github.com/PetrIIvanov/ansible-role-monitoring /home/vagrant/provision/ansible-role-monitoring/",
       "git clone https://github.com/PetrIIvanov/ansible-alertmanager.git /home/vagrant/provision/ansible-alertmanager/",
       "git clone https://github.com/PetrIIvanov/ansible-role-gitlab.git",
-      "ansible-galaxy collection install community.mysql"
+      "ansible-galaxy collection install community.mysql",
+      "ansible-playbook -i /home/vagrant/provision/inventory /home/vagrant/provision/copy_hosts.yml --become",
+      "ansible-playbook -i /home/vagrant/provision/inventory /home/vagrant/provision/db.yml --become",
+      "ansible-playbook -i /home/vagrant/provision/inventory /home/vagrant/provision/install-wordpress.yml --become"
+      // "ansible-playbook -i /home/vagrant/provision/inventory /home/vagrant/provision/nginx_v2.yml --become",
+      //"ansible-playbook -i /home/vagrant/provision/inventory /home/vagrant/provision/monitoring.yml --become"
 
     ]
   }

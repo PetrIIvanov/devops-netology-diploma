@@ -1,0 +1,15 @@
+  - hosts: nginx
+    roles:
+      - ansible-nginx-revproxy
+        #- ansible-letsencrypt-nginx-revproxy
+    vars:
+      nginx_revproxy_sites:
+        www.petrivanov.ru:
+          domains:
+            - www.petrivanov.ru
+          upstreams:
+            - { backend_address: 192.168.10.30, backend_port: 80 }
+          letsencrypt: true
+          ssl: false
+          letsencrypt_email: black.skif@gmail.com
+          letsencrypt_stage: true

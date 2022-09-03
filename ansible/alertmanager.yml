@@ -1,0 +1,17 @@
+- name: install monitoring stack
+  hosts: monitoring 
+  become: yes
+  roles:
+  - ansible-alertmanager
+  vars:
+    alertmanager_listen_address: "0.0.0.0:9093"
+- name: install grafana plugin
+  hosts: monitoring
+  become: yes
+  tasks:
+    - name: Install via cli       
+      shell: grafana-cli plugins install camptocamp-prometheus-alertmanager-datasource
+    - name: Restart Prometheus
+      shell: systemctl restart prometheus
+    - name: Restart Grafana
+      shell: systemctl restart grafana-server  
